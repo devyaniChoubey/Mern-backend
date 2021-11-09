@@ -1,5 +1,5 @@
 const Cart = require('../models/cart');
-
+var mongoose = require('mongoose');
 exports.addItemToCart = (req, res) => {
 
     Cart.findOne({ user: req.user._id })
@@ -7,12 +7,11 @@ exports.addItemToCart = (req, res) => {
             if (error) return res.status(400).json({ error });
             if (cart) {
                 let product;
-                product = req.body.cartItems[0].product
-                console.log(product)
-                const item = cart.cartItems.find(c => c.product === product);
+                product = req.body.cartItems.product
+                const item = cart.cartItems.find(c => JSON.stringify(c.product) === JSON.stringify(product))
                 let condition, action;
                 if (item) {
-                    condition = { "user": req.user._id, "cartItems.product":product };
+                    condition = { "user": req.user._id, "cartItems.product":mongoose.Types.ObjectId(product) };
                     action = {
                         "$set": {
                             "cartItems.$": {
@@ -22,6 +21,7 @@ exports.addItemToCart = (req, res) => {
                             }
                         }
                     }
+                    //return res.status(201).json({ message:"DFGH" });
                 } else {
                     condition = { user: req.user._id };
                     action = {
@@ -40,7 +40,7 @@ exports.addItemToCart = (req, res) => {
             } else {
                 const cart = new Cart({
                     user: req.user._id,
-                    cartItems: req.body.cartItems
+                    cartItems: [req.body.cartItems]
                 })
                 cart.save((error, cart) => {
                     if (error) return res.status(400).json({ error });
