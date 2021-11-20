@@ -28,7 +28,7 @@ exports.createProduct = (req, res) => {
             res.status(201).json({ product })
         }
     }))
-    //res.status(200).json({file: req.files,body :req.body})
+    // res.status(200).json({file: req.files,body :req.body})
 }
 
 exports.getProductsBySlug = (req, res) => {
@@ -48,7 +48,7 @@ exports.getProductsBySlug = (req, res) => {
                             return res.status(400).json({ error });
                         }
                         console.log(products)
-                        if (products.length >= 0) {
+                        if (products.length > 0) {
                             res.status(200).json({
                                 products,
                                 productsByPrice: {
@@ -59,7 +59,6 @@ exports.getProductsBySlug = (req, res) => {
                                     under30k: products.filter(product => product.price > 20000 && product.price <= 30000),
                                 }
                             })
-
                         }
 
 
