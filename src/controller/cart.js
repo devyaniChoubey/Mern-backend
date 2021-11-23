@@ -2,10 +2,10 @@ const Cart = require('../models/cart');
 var mongoose = require('mongoose');
 
 
-function runUpdate(condition , updateData){
-   return new Promise((resolve, reject) =>{
-       Cart.findOneAndUpdate(condition,updateData,{upsert:true}).then(result => resolve()).catch(err => reject(err))
-   })
+function runUpdate(condition, updateData) {
+    return new Promise((resolve, reject) => {
+        Cart.findOneAndUpdate(condition, updateData, { upsert: true }).then(result => resolve()).catch(err => reject(err))
+    })
 }
 
 
@@ -19,10 +19,10 @@ exports.addItemToCart = (req, res) => {
 
                 req.body.cartItems.forEach((cartItem) => {
                     const product = cartItem.product;
-                    const item  = cart.cartItems.find(c => JSON.stringify(c.product) === JSON.stringify(product));
+                    const item = cart.cartItems.find(c => JSON.stringify(c.product) === JSON.stringify(product));
                     let condition, action;
                     if (item) {
-                        condition = { "user": req.user._id, "cartItems.product":mongoose.Types.ObjectId(product) };
+                        condition = { "user": req.user._id, "cartItems.product": mongoose.Types.ObjectId(product) };
                         action = {
                             "$set": {
                                 "cartItems.$": cartItem
@@ -37,13 +37,13 @@ exports.addItemToCart = (req, res) => {
                             }
                         }
                     }
-                    promiseArray.push(runUpdate(condition , action));
+                    promiseArray.push(runUpdate(condition, action));
 
                 })
                 Promise.all(promiseArray)
-                .then(response => res.status(201).json({response}))
-                .catch(error => res.status(400).json({error}))
-               
+                    .then(response => res.status(201).json({ response }))
+                    .catch(error => res.status(400).json({ error }))
+
             } else {
                 const cart = new Cart({
                     user: req.user._id,
@@ -63,25 +63,27 @@ exports.addItemToCart = (req, res) => {
 
 }
 
+exports.getCartItems = (req, res) => {
+    Cart.findOne({ user: req.user._id })
+        .populate("cartItems.product", "_id name price productPictures")
+        .exec((error, cart) => {
+            if (error) return res.status(400).json({ error });
+            if (cart) {
+                let cartItems = {};
+                cart.cartItems.forEach((item, index) => {
+                    if (item.product) {
+                        cartItems[item.product._id.toString()] = {
+                            _id: item.product._id.toString(),
+                            name: item.product.name,
+                            img: item.product.productPictures[0].img,
+                            price: item.product.price,
+                            qty: item.quantity,
+                        };
+                    }
 
-exports.getCartItems = (req,res) =>{
-    Cart.findOne({user: req.user._id})
-    .populate('cartItems.product','_id name price productPictures')
-    .exec((error,cart) => {
-        if(error) return res.status(400).json({error});
-        if(cart){
-            let cartItems = {};
-            cart.cartItems.forEach((item,index) =>{
-                cartItems[item.product._id.toString()] = {
-                    _id :item.product._id.toString(),
-                    name:item.product.name,
-                    img : item.product.productPictures[0].img,
-                    price: item.product.price,
-                    qty:item.quantity 
-                }
-            })
-            res.status(200).json({cartItems})
-        }
-    })
-}
+                });
+                res.status(200).json({ cartItems });
+            }
+        });
+};
 
