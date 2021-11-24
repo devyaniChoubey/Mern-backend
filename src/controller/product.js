@@ -89,10 +89,10 @@ exports.getProductDetailsById = (req,res) => {
 
 exports.getAllProducts = (req,res) => {
     Product.find({})
-    .exec((error, product) => {
+    .exec((error, products) => {
           if(error) return res.status(400).json({error})
-          if(product){
-            res.status(200).json({ product });
+          if(products){
+            res.status(200).json({ products });
           }
     })
 }
