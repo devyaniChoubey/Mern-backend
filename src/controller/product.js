@@ -86,3 +86,13 @@ exports.getProductDetailsById = (req,res) => {
         
     }
 }
+
+exports.getAllProducts = (req,res) => {
+    Product.find({})
+    .exec((error, product) => {
+          if(error) return res.status(400).json({error})
+          if(product){
+            res.status(200).json({ product });
+          }
+    })
+}
