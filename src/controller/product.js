@@ -68,31 +68,31 @@ exports.getProductsBySlug = (req, res) => {
         })
 
 }
-exports.getProductDetailsById = (req,res) => {
-    const {productId} =req.params;
-    if(productId){
-          Product.findOne({_id: productId})
-          .exec((error,product) =>{
-            if (error) {
-                return res.status(400).json({ error });
-            }
-            if (product) {
-                return res.status(200).json({ product });
-            }
-          })
-    }else{
-        
-            return res.status(400).json({ error:'Params required' });
-        
+exports.getProductDetailsById = (req, res) => {
+    const { productId } = req.params;
+    if (productId) {
+        Product.findOne({ _id: productId })
+            .exec((error, product) => {
+                if (error) {
+                    return res.status(400).json({ error });
+                }
+                if (product) {
+                    return res.status(200).json({ product });
+                }
+            })
+    } else {
+
+        return res.status(400).json({ error: 'Params required' });
+
     }
 }
 
-exports.getAllProducts = (req,res) => {
-    Product.find({})
-    .exec((error, products) => {
-          if(error) return res.status(400).json({error})
-          if(products){
-            res.status(200).json({ products });
-          }
-    })
+exports.getAllProducts = (req, res) => {
+    Product.aggregate([{ $sample: { size: 7 } }])
+        .exec((error, product) => {
+            if (error) return res.status(400).json({ error })
+            if (product) {
+                res.status(200).json({ product });
+            }
+        })
 }
