@@ -35,7 +35,7 @@ exports.getProductsBySlug = (req, res) => {
     const { slug } = req.params;
     console.log(slug)
     Category.findOne({ slug: slug })
-        .select('_id type')
+        .select('_id type name')
         .exec((error, category) => {
             if (error) {
                 return res.status(400).json({ error });
@@ -48,6 +48,7 @@ exports.getProductsBySlug = (req, res) => {
                         }
                         console.log(category._id)
 
+
                         if(category.type){
                             if (products.length > 0) {
                                 res.status(200).json({
@@ -58,11 +59,12 @@ exports.getProductsBySlug = (req, res) => {
                                         under15k: products.filter(product => product.price > 10000 && product.price <= 15000),
                                         under20k: products.filter(product => product.price > 15000 && product.price <= 20000),
                                         under30k: products.filter(product => product.price > 20000 && product.price <= 30000),
-                                    }
+                                    },
+                                    categoryName : category.name
                                 })
                             }
                         }else{
-                            return res.status(400).json({ product : products });
+                            return res.status(200).json({ product : products, categoryName : category.name });
                         }
                         
 
