@@ -36,8 +36,8 @@ const orderSchema = new mongoose.Schema({
     },
     paymentType:{
         type:String,
-        enum: ["cod", "card"],
-        required:true
+        enum: ["cod", "card"]
+        // required:true
     },
     orderStatus:[{
         type: {
