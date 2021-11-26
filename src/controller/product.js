@@ -64,7 +64,7 @@ exports.getProductsBySlug = (req, res) => {
                                 })
                             }
                         }else{
-                            return res.status(200).json({ product : products, categoryName : category.name });
+                            return res.status(200).json({ products : products, categoryName : category.name });
                         }
                         
 
@@ -84,6 +84,7 @@ exports.getProductDetailsById = (req, res) => {
                     return res.status(400).json({ error });
                 }
                 if (product) {
+                    
                     return res.status(200).json({ product });
                 }
             })
@@ -102,4 +103,22 @@ exports.getAllProducts = (req, res) => {
                 res.status(200).json({ products });
             }
         })
+}
+
+exports.getProductsByCategory = (req,res) => {
+    const {categoryId} = req.params;
+    if(categoryId){
+        Product.find({category : categoryId})
+              .exec((error, products) => {
+                if (error) {
+                    return res.status(400).json({ error });
+                }
+                if (products) {
+                    return res.status(200).json({ products });
+                }
+              })
+
+    }else{
+        return res.status(400).json({ error: 'Params required' }); 
+    }
 }
