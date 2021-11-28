@@ -12,6 +12,7 @@ const initialDataRoutes = require('./routes/admin/initialData');
 const addressRoutes = require('./routes/address')
 const pageRoutes = require('./routes/admin/page');
 const orderRoutes = require('./routes/order')
+const updateOrder = require('./routes/admin/order.routes');
 const cors = require('cors');
 var bodyParser = require('body-parser');
 
@@ -42,6 +43,7 @@ app.use('/api', initialDataRoutes)
 app.use('/api',pageRoutes);
 app.use('/api',addressRoutes)
 app.use('/api',orderRoutes)
+app.use('/api',updateOrder)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`)

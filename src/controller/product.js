@@ -49,10 +49,18 @@ exports.getProductsBySlug = (req, res) => {
                         console.log(category._id)
 
 
-                        if(category.type){
+                        if (category.type) {
                             if (products.length > 0) {
                                 res.status(200).json({
                                     products,
+                                    priceRange :{
+                                        under5k : 5000,
+                                       under10k: 10000,
+                                       under15k: 15000,
+                                       under20k: 20000,
+                                       under30k: 30000
+
+                                    },
                                     productsByPrice: {
                                         under5k: products.filter(product => product.price <= 5000),
                                         under10k: products.filter(product => product.price > 5000 && product.price <= 10000),
@@ -60,13 +68,13 @@ exports.getProductsBySlug = (req, res) => {
                                         under20k: products.filter(product => product.price > 15000 && product.price <= 20000),
                                         under30k: products.filter(product => product.price > 20000 && product.price <= 30000),
                                     },
-                                    categoryName : category.name
+                                    categoryName: category.name
                                 })
                             }
-                        }else{
-                            return res.status(200).json({ products : products, categoryName : category.name });
+                        } else {
+                            return res.status(200).json({ products: products, categoryName: category.name });
                         }
-                        
+
 
 
                     })
@@ -84,7 +92,7 @@ exports.getProductDetailsById = (req, res) => {
                     return res.status(400).json({ error });
                 }
                 if (product) {
-                    
+
                     return res.status(200).json({ product });
                 }
             })
@@ -105,20 +113,44 @@ exports.getAllProducts = (req, res) => {
         })
 }
 
-exports.getProductsByCategory = (req,res) => {
-    const {categoryId} = req.params;
-    if(categoryId){
-        Product.find({category : categoryId})
-              .exec((error, products) => {
+exports.getProductsByCategory = (req, res) => {
+    const { categoryId } = req.params;
+    if (categoryId) {
+        Product.find({ category: categoryId })
+            .exec((error, products) => {
                 if (error) {
                     return res.status(400).json({ error });
                 }
                 if (products) {
                     return res.status(200).json({ products });
                 }
-              })
+            })
 
-    }else{
-        return res.status(400).json({ error: 'Params required' }); 
+    } else {
+        return res.status(400).json({ error: 'Params required' });
     }
+}
+
+exports.deleteProductById = (req,res) => {
+    const {productId} = req.body.payload;
+    if(productId){
+       Product.deleteOne({_id : productId}).exec((error,result) =>{
+        if (error) return res.status(400).json({ error });
+        if (result) {
+            res.status(202).json({ result });
+        }
+       })
+    }else{
+        res.status(400).json({error: "Params required"});
+    }
+}
+
+
+exports.getProducts = async (req,res) => {
+    const products = await Product.find({})
+    .select("_id name price quantity slug description productPictures category")
+    .populate({path :"category", select:"_id name"})
+    .exec();
+
+    res.status(200).json({products})
 }

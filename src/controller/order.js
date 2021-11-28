@@ -61,10 +61,11 @@ exports.getOrder = (req, res) => {
         }).exec((error, address) => {
           if (error) return res.status(400).json({ error });
           order.address = address.address.find(
-            (adr) => adr._id.toString() == order.addressId.toString()
+            (adr) => adr._id.toString() === order.addressId.toString()
           );
+          console.log(order.address)
           res.status(200).json({
-            order,
+            order
           });
         });
       }
