@@ -53,12 +53,12 @@ exports.getProductsBySlug = (req, res) => {
                             if (products.length > 0) {
                                 res.status(200).json({
                                     products,
-                                    priceRange :{
-                                        under5k : 5000,
-                                       under10k: 10000,
-                                       under15k: 15000,
-                                       under20k: 20000,
-                                       under30k: 30000
+                                    priceRange: {
+                                        under5k: 5000,
+                                        under10k: 10000,
+                                        under15k: 15000,
+                                        under20k: 20000,
+                                        under30k: 30000
 
                                     },
                                     productsByPrice: {
@@ -131,26 +131,50 @@ exports.getProductsByCategory = (req, res) => {
     }
 }
 
-exports.deleteProductById = (req,res) => {
-    const {productId} = req.body.payload;
-    if(productId){
-       Product.deleteOne({_id : productId}).exec((error,result) =>{
-        if (error) return res.status(400).json({ error });
-        if (result) {
-            res.status(202).json({ result });
-        }
-       })
-    }else{
-        res.status(400).json({error: "Params required"});
+exports.deleteProductById = (req, res) => {
+    const { productId } = req.body.payload;
+    if (productId) {
+        Product.deleteOne({ _id: productId }).exec((error, result) => {
+            if (error) return res.status(400).json({ error });
+            if (result) {
+                res.status(202).json({ result });
+            }
+        })
+    } else {
+        res.status(400).json({ error: "Params required" });
     }
 }
 
 
-exports.getProducts = async (req,res) => {
+exports.getProducts = async (req, res) => {
     const products = await Product.find({})
-    .select("_id name price quantity slug description productPictures category")
-    .populate({path :"category", select:"_id name"})
-    .exec();
+        .select("_id name price quantity slug description productPictures category")
+        .populate({ path: "category", select: "_id name" })
+        .exec();
 
-    res.status(200).json({products})
+    res.status(200).json({ products })
 }
+
+exports.addReviews = async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+        const review = {
+            name: req.body.name,
+            rating: Number(req.body.rating),
+            comment: req.body.comment,
+        };
+        product.reviews.push(review);
+        product.numReviews = product.reviews.length;
+        product.rating =
+            product.reviews.reduce((a, c) => c.rating + a, 0) /
+            product.reviews.length;
+        const updatedProduct = await product.save();
+        res.status(201).send({
+            data: updatedProduct.reviews[updatedProduct.reviews.length - 1],
+            message: 'Review saved successfully.',
+        });
+    } else {
+        res.status(404).send({ message: 'Product Not Found' });
+    }
+}
+
