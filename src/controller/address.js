@@ -1,6 +1,7 @@
 const UserAddress = require('../models/address');
 
 exports.addAddress = (req, res) => {
+  console.log("yyy");
   const { payload } = req.body;
   if (payload.address) {
     if (payload.address._id) {
